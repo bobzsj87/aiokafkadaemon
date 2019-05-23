@@ -10,12 +10,14 @@ logger = logging.getLogger('')
 class Worker:
     def __init__(self, kafka_broker_addr=None, kafka_group_id='',
                  consumer_topic='', producer_topic='',
-                 create_consumer=True, create_producer=False):
+                 create_consumer=True, create_producer=False,
+                 on_run=None):
         loop = asyncio.get_event_loop()
         self._kafka_broker_addr = kafka_broker_addr
         self._kafka_group_id = kafka_group_id
         self._consumer_topic = consumer_topic
         self._producer_topic = producer_topic
+        self._on_run = on_run
         if not producer_topic:
             self._producer_topic = consumer_topic
         self._consumer = None
@@ -118,4 +120,4 @@ class Worker:
         finally:
             # it's to better to stop kafka components, better
             # than keep it running with problems.
-            await self.stop_kafa()
+            await self.stop_kafka()
