@@ -1,2 +1,5 @@
 venv/
+aiokafkadaemon.egg-info/
+build/
+dist/
 .idea/

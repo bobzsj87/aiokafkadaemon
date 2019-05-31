@@ -14,7 +14,7 @@ setup(name='aiokafkadaemon',
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Framework :: AsyncIO',
-          'Intended Audience :: Software Development',
+          'Intended Audience :: Developers',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 3 :: Only',
           'Programming Language :: Python :: 3.5',
