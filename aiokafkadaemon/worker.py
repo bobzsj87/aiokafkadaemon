@@ -79,11 +79,13 @@ class Worker:
         if self._consumer_topic:
             self._consumer.subscribe([self._consumer_topic])
         if self._consumer:
+            logger.info('Kafka consumer started')
             await self._consumer.start()
         if self._producer:
+            logger.info('Kafka producer started')
             await self._producer.start()
 
-    async def stop_kafka(self, stop_producer=True):
+    async def stop_kafka(self, stop_producer=False):
         if self._consumer:
             await self._consumer.stop()
             logger.warning('Consumer has been stopped')
@@ -107,7 +109,7 @@ class Worker:
             await self.start()
             on_run = getattr(self, 'on_run', None)
             if on_run and callable(on_run):
-                on_run()
+                await on_run()
         except Exception as exc:
             # Only deadling with generic and Kafka critical
             # errors here. ie, UnknownMemberIdError and any

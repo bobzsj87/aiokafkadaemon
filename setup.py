@@ -6,7 +6,7 @@ from distutils.core import setup
 from setuptools import find_packages
 
 setup(name='aiokafkadaemon',
-      version='0.1',
+      version='0.3',
       description='Asynchronous Kafka Processing Daemon',
       author='Bob Zhou',
       author_email='bob.zhou@ef.com',
@@ -21,11 +21,11 @@ setup(name='aiokafkadaemon',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7'
       ],
-      keywords='asyncio kafka producer consumer daemon framework',
+      keywords='asyncio-based kafka producer/consumer daemon framework',
       url='',
       packages=find_packages(exclude=['contrib', 'docs', 'tests*', 'venv']),
       install_requires=['asyncio', 'aiokafka'],
       tests_require=['pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mock',
                      'coverage'],
       python_requires='>=3.5, <4',
-      entry_points={'console_scripts': ['aiokafkadaemon=aiokafkadaemon.__main__:main']})
+      entry_points={'console_scripts': []})
