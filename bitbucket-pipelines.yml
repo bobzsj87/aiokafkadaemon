@@ -31,5 +31,5 @@ pipelines:
               - echo "repository=${PYPI_REPO}" >> ~/.pypirc
               - echo "username=${PYPI_USER}" >> ~/.pypirc
               - echo "password=${PYPI_PASSWORD}" >> ~/.pypirc
-              - python3 setup.py check sdist bdist # This will fail for bad CREDS, early check
+              - python3 setup.py check sdist bdist_wheel # This will fail for bad CREDS, early check
               - twine upload -r pypi dist/*
