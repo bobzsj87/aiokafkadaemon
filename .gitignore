@@ -1,5 +1,6 @@
 venv/
-aiokafkadaemon.egg-info/
+**/__pycache__/
+aio_kafka_daemon.egg-info/
 build/
 dist/
 .idea/
