@@ -19,7 +19,7 @@ pipelines:
             caches:
               - docker
             services:
-              -docker
+              - docker
             script:
               - echo "[distutils]" > ~/.pypirc
               - echo "index-servers=" >> ~/.pypirc
