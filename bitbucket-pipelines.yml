@@ -1,0 +1,24 @@
+pipelines:
+  branches:
+      develop:
+        - step:
+            name: Deploy to PyPI
+            trigger: manual  # uncomment to have a manual step
+            image: python:3.7
+            caches:
+              - docker
+            services:
+              - docker
+            script:
+              - pip install --upgrade pip setuptools wheel twine
+              - rm -rf dist
+              - echo "[distutils]" > ~/.pypirc
+              - echo "index-servers=" >> ~/.pypirc
+              - echo "   pypi" >> ~/.pypirc
+              - echo "[pypi]" >> ~/.pypirc
+              - echo "repository=${PYPI_REPO}" >> ~/.pypirc
+              - echo "username=${PYPI_USER}" >> ~/.pypirc
+              - echo "password=${PYPI_PASSWORD}" >> ~/.pypirc
+              - python3 setup.py check sdist bdist # This will fail for bad CREDS, early check
+              - python3 setup.py sdist bdist_wheel
+              - twine upload -r pypi dist/*

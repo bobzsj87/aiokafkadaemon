@@ -4,7 +4,7 @@ import traceback
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
 
-logger = logging.getLogger('')
+logger = logging.getLogger('aiokafkadaemon')
 
 
 class Worker:
