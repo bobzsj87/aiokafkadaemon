@@ -72,11 +72,11 @@ class Worker:
         """
         logger.debug('Creating instance of producer')
         if not sasl_opts:
-            consumer = AIOKafkaProducer(loop=loop,
+            producer = AIOKafkaProducer(loop=loop,
                                         bootstrap_servers=broker_addr,
                                         compression_type='snappy')
         else:
-            consumer = AIOKafkaProducer(
+            producer = AIOKafkaProducer(
                 loop=loop,
                 bootstrap_servers=broker_addr,
                 compression_type='snappy',
