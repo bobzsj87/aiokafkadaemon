@@ -4,4 +4,7 @@
 from .daemon import Daemon  # noqa: F403
 from .worker import Worker  # noqa: F403
 
-__all__ = ['Daemon', 'Worker',]
+__all__ = [
+    'Daemon',
+    'Worker',
+]

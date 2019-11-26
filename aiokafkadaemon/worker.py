@@ -3,15 +3,19 @@ import logging
 import traceback
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
-
 logger = logging.getLogger('aiokafkadaemon')
 
 
 class Worker:
-    def __init__(self, kafka_broker_addr=None, kafka_group_id='',
-                 consumer_topic='', producer_topic='',
-                 create_consumer=True, create_producer=False,
-                 on_run=None):
+    def __init__(self,
+                 kafka_broker_addr=None,
+                 kafka_group_id='',
+                 consumer_topic='',
+                 producer_topic='',
+                 create_consumer=True,
+                 create_producer=False,
+                 on_run=None,
+                 sasl_opts={}):
         loop = asyncio.get_event_loop()
         self._kafka_broker_addr = kafka_broker_addr
         self._kafka_group_id = kafka_group_id
@@ -22,16 +26,16 @@ class Worker:
             self._producer_topic = consumer_topic
         self._consumer = None
         self._producer = None
-        self._on_consumer_subscribe = None
-        self._on_consumer_message = None
+
         if create_consumer:
             self._consumer = Worker.make_consumer(loop, kafka_broker_addr,
-                                                  kafka_group_id)
+                                                  kafka_group_id, sasl_opts)
         if create_producer:
-            self._producer = Worker.make_producer(loop, kafka_broker_addr)
+            self._producer = Worker.make_producer(loop, kafka_broker_addr,
+                                                  sasl_opts)
 
     @classmethod
-    def make_consumer(cls, loop, broker_addr, group_id):
+    def make_consumer(cls, loop, broker_addr, group_id, sasl_opts={}):
         """
         Creates and connects Kafka  consumer to the broker
         :param loop:
@@ -39,15 +43,27 @@ class Worker:
         :return:
         """
         logger.debug('Creating instance of kafka consumer')
-        consumer = AIOKafkaConsumer(loop=loop,
-                                    bootstrap_servers=broker_addr,
-                                    group_id=group_id,
-                                    session_timeout_ms=60000)
+        if not sasl_opts:
+            consumer = AIOKafkaConsumer(loop=loop,
+                                        bootstrap_servers=broker_addr,
+                                        group_id=group_id,
+                                        session_timeout_ms=60000)
+        else:
+            consumer = AIOKafkaConsumer(
+                loop=loop,
+                bootstrap_servers=broker_addr,
+                group_id=group_id,
+                session_timeout_ms=60000,
+                sasl_mechanism='PLAIN',
+                sasl_plain_username=sasl_opts['username'],
+                sasl_plain_password=sasl_opts['password'],
+                security_protocol='SASL_SSL')
+
         logger.info('Connected consumer to kafka on {}'.format(broker_addr))
         return consumer
 
     @classmethod
-    def make_producer(cls, loop, broker_addr):
+    def make_producer(cls, loop, broker_addr, sasl_opts={}):
         """
         Creates an instance of the AIOKafka producer
         :param loop:
@@ -55,9 +71,20 @@ class Worker:
         :return:
         """
         logger.debug('Creating instance of producer')
-        producer = AIOKafkaProducer(loop=loop,
-                                    bootstrap_servers=broker_addr,
-                                    compression_type='snappy')
+        if not sasl_opts:
+            consumer = AIOKafkaProducer(loop=loop,
+                                        bootstrap_servers=broker_addr,
+                                        compression_type='snappy')
+        else:
+            consumer = AIOKafkaProducer(
+                loop=loop,
+                bootstrap_servers=broker_addr,
+                compression_type='snappy',
+                sasl_mechanism='PLAIN',
+                sasl_plain_username=sasl_opts['username'],
+                sasl_plain_password=sasl_opts['password'],
+                security_protocol='SASL_SSL')
+
         logger.info('Producer connected to kafka on {}'.format(broker_addr))
         return producer
 

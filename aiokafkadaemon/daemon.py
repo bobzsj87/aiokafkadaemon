@@ -14,8 +14,7 @@ async def default_exit_handler(signame, worker, logger):
 
 
 class Daemon:
-    def __init__(self, test=False, worker=None,
-                 abort_handler=None, **kwargs):
+    def __init__(self, test=False, worker=None, abort_handler=None, **kwargs):
         """
         :param test:
         :param worker:
@@ -34,9 +33,7 @@ class Daemon:
         for signame in ('SIGINT', 'SIGTERM'):
             loop.add_signal_handler(
                 getattr(signal, signame), lambda: asyncio.ensure_future(
-                    self._signal_handler(signame, self._worker, logger)
-                )
-            )
+                    self._signal_handler(signame, self._worker, logger)))
         await self._worker.run()
         logger.debug('AIOKafkaDaemon stopped')
 
