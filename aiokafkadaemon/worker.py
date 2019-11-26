@@ -2,6 +2,7 @@ import asyncio
 import logging
 import traceback
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+import ssl
 
 logger = logging.getLogger('aiokafkadaemon')
 
@@ -57,7 +58,8 @@ class Worker:
                 sasl_mechanism='PLAIN',
                 sasl_plain_username=sasl_opts['username'],
                 sasl_plain_password=sasl_opts['password'],
-                security_protocol='SASL_SSL')
+                security_protocol='SASL_SSL',
+                ssl_context=ssl.SSLContext(ssl.PROTOCOL_TLSv1_2))
 
         logger.info('Connected consumer to kafka on {}'.format(broker_addr))
         return consumer
@@ -83,7 +85,8 @@ class Worker:
                 sasl_mechanism='PLAIN',
                 sasl_plain_username=sasl_opts['username'],
                 sasl_plain_password=sasl_opts['password'],
-                security_protocol='SASL_SSL')
+                security_protocol='SASL_SSL',
+                ssl_context=ssl.SSLContext(ssl.PROTOCOL_TLSv1_2))
 
         logger.info('Producer connected to kafka on {}'.format(broker_addr))
         return producer
