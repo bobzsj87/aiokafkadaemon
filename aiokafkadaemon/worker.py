@@ -3,11 +3,15 @@ import logging
 import traceback
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 import ssl
+import boto3
 
 logger = logging.getLogger('aiokafkadaemon')
 
 
 class Worker:
+
+    _boto3_client = None
+
     def __init__(self,
                  kafka_broker_addr=None,
                  kafka_group_id='',
@@ -27,6 +31,17 @@ class Worker:
             self._producer_topic = consumer_topic
         self._consumer = None
         self._producer = None
+
+        # Automatically reads environment variables
+        #       AWS_ACCESS_KEY_ID
+        #       AWS_SECRET_ACCESS_KEY
+        #       AWS_SESSION_TOKEN (optional)
+        #       AWS_DEFAULT_REGION
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#environment-variables
+        try:
+            self._boto3_client = boto3.client('stepfunctions')
+        except Exception as e:
+            logger.warning(f'Unable to connect to boto3 client for step functions: {e}')
 
         if create_consumer:
             self._consumer = Worker.make_consumer(loop, kafka_broker_addr,
@@ -131,7 +146,7 @@ class Worker:
     async def run(self):
         """
         Main method for the worker. Any child class can either
-        overload it, or just implement on_run asyn callback,
+        overload it, or just implement on_run async callback,
         to perform specific tasks.
         :return:
         """
@@ -153,3 +168,44 @@ class Worker:
             # it's to better to stop kafka components, better
             # than keep it running with problems.
             await self.stop_kafka()
+
+    def send_heartbeat(self, step_functions_task_id):
+        """
+        If being processed as part of an AWS Step Functions pipeline
+        then send a regular heartbeat when processing to let Step Functions
+        know and not kill the process.
+        """
+        if self._boto3_client is None or step_functions_task_id is None:
+            return
+        try:
+            logger.info(f'Sending step functions heartbeat for {step_functions_task_id}')
+            self._boto3_client.send_task_heartbeat(taskToken=step_functions_task_id)
+        except Exception as e:
+            logger.error(f'Unable to send heartbeat {e}')
+            return
+
+    def send_step_functions_result(self, step_functions_task_id, result, result_data):
+        """
+        If being processed as part of an AWS Step Functions pipeline
+        then send back a relevant result (success or failure) with useful
+        data for processing.
+        """
+        if self._boto3_client is None or step_functions_task_id is None:
+            return
+        try:
+            if result.get('error') is not None:
+                logger.info(f'Sending step functions task failure for {step_functions_task_id}')
+                self._boto3_client.send_task_failure(
+                    taskToken=step_functions_task_id,
+                    error=str(result.get('code')),
+                    cause=str(result.get('error')),
+                )
+            else:
+                logger.info(f'Sending step functions task success for {step_functions_task_id}')
+                self._boto3_client.send_task_success(
+                    taskToken=step_functions_task_id,
+                    output=str(result_data),
+                )
+        except Exception as e:
+            logger.error(f'Unable to send step functions response: {e}')
+            return
