@@ -22,7 +22,7 @@ setup(name='aio-kafka-daemon',
       keywords='asyncio-based kafka producer/consumer daemon framework',
       url='',
       packages=find_packages(exclude=['contrib', 'docs', 'tests*', 'venv']),
-      install_requires=['asyncio', 'aiokafka'],
+      install_requires=['asyncio', 'aiokafka', 'boto3'],
       tests_require=[
           'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mock', 'coverage'
       ],
