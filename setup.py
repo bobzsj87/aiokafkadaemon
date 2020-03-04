@@ -5,7 +5,7 @@ from distutils.core import setup
 from setuptools import find_packages
 
 setup(name='aio-kafka-daemon',
-      version='0.5.2.4',
+      version='0.5.2.5',
       description='Asynchronous Kafka Processing Daemon',
       author='Bob Zhou',
       author_email='bob.zhou@ef.com',
